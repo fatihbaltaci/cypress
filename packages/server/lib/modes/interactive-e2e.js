@@ -9,8 +9,18 @@ const menu = require('../gui/menu')
 const Events = require('../gui/events')
 const Windows = require('../gui/windows')
 
+const { getPathToDesktopIndex } = require('@packages/resolve-dist')
+
 const isDev = () => {
   return process.env['CYPRESS_INTERNAL_ENV'] === 'development'
+}
+
+const getUrl = function (type) {
+  if (type === 'e2e' || !process.env.LAUNCHPAD) {
+    return getPathToDesktopIndex('desktop-gui')
+  }
+
+  return getPathToDesktopIndex('launchpad')
 }
 
 module.exports = {
@@ -18,7 +28,7 @@ module.exports = {
     return os.platform() === 'darwin'
   },
 
-  getWindowArgs (state) {
+  getWindowArgs (state, options) {
     // Electron Window's arguments
     // These options are passed to Electron's BrowserWindow
     const minWidth = Math.round(/* 13" MacBook Air */ 1792 / 3) // Thirds
@@ -97,6 +107,7 @@ module.exports = {
       onClose () {
         app.quit()
       },
+      url: getUrl(options.testingType),
     }
 
     return _.extend(common, this.platformArgs())

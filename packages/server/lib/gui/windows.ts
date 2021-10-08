@@ -5,7 +5,6 @@ import { BrowserWindow } from 'electron'
 import Debug from 'debug'
 import cwd from '../cwd'
 import savedState from '../saved_state'
-import { getPathToDesktopIndex } from '@packages/resolve-dist'
 
 const debug = Debug('cypress:server:windows')
 
@@ -17,20 +16,6 @@ export type WindowOptions = Electron.BrowserWindowConstructorOptions & {
 
 let windows = {}
 let recentlyCreatedWindow = false
-
-const getUrl = function (type) {
-  switch (type) {
-    case 'INDEX':
-      if (process.env.LAUNCHPAD) {
-        return getPathToDesktopIndex('launchpad')
-      }
-
-      return getPathToDesktopIndex('desktop-gui')
-
-    default:
-      throw new Error(`No acceptable window type found for: '${type}'`)
-  }
-}
 
 const getByType = (type) => {
   return windows[type]
@@ -247,10 +232,6 @@ export function open (projectRoot, options: WindowOptions = {}, newBrowserWindow
       preload: cwd('lib', 'ipc', 'ipc.js'),
     },
   })
-
-  if (!options.url) {
-    options.url = getUrl(options.type)
-  }
 
   win = create(projectRoot, options, newBrowserWindow)
 
